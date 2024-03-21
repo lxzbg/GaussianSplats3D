@@ -453,7 +453,6 @@ export class Viewer {
      * @return {AbortablePromise}
      */
     addSplatScene(path, options = {}) {
-
         if (this.isLoading()) {
             throw new Error('Cannot add splat scene while another load is already in progress.');
         }
@@ -777,6 +776,7 @@ export class Viewer {
      */
     loadSplatSceneToSplatBuffer(path, splatAlphaRemovalThreshold = 1, onProgress = undefined,
                                 streamBuiltSections = false, onSectionBuilt = undefined, format) {
+        
         if (format === SceneFormat.Splat) {
             return SplatLoader.loadFromURL(path, onProgress, streamBuiltSections, onSectionBuilt, splatAlphaRemovalThreshold, 0, false);
         } else if (format === SceneFormat.KSplat) {

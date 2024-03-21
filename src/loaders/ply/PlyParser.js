@@ -9,7 +9,9 @@ export class PlyParser {
     static HeaderEndToken = 'end_header';
 
     static Fields = ['scale_0', 'scale_1', 'scale_2', 'rot_0', 'rot_1', 'rot_2', 'rot_3',
-                     'x', 'y', 'z', 'f_dc_0', 'f_dc_1', 'f_dc_2', 'red', 'green', 'blue', 'opacity'];
+                     'x', 'y', 'z', 'f_dc_0', 'f_dc_1', 'f_dc_2',
+                     'f_rest_0', 'f_rest_1','f_rest_2','f_rest_3', 'f_rest_4','f_rest_5','f_rest_6','f_rest_7','f_rest_8',
+                     'red', 'green', 'blue', 'opacity'];
 
     static checkTextForEndHeader(endHeaderTestText) {
         if (endHeaderTestText.includes(PlyParser.HeaderEndToken)) {
@@ -195,6 +197,23 @@ export class PlyParser {
                 newSplat[UncompressedSplatArray.OFFSET.FDC1] = 0;
                 newSplat[UncompressedSplatArray.OFFSET.FDC2] = 0;
             }
+            if (rawVertex['f_rest_0'] !== undefined) {
+                newSplat[UncompressedSplatArray.OFFSET.FRC0] = rawVertex['f_rest_0'];
+                newSplat[UncompressedSplatArray.OFFSET.FRC1] = rawVertex['f_rest_3'];
+                newSplat[UncompressedSplatArray.OFFSET.FRC2] = rawVertex['f_rest_6'];
+                newSplat[UncompressedSplatArray.OFFSET.FRC3] = rawVertex['f_rest_1'];
+                newSplat[UncompressedSplatArray.OFFSET.FRC4] = rawVertex['f_rest_4'];
+                newSplat[UncompressedSplatArray.OFFSET.FRC5] = rawVertex['f_rest_7'];
+                newSplat[UncompressedSplatArray.OFFSET.FRC6] = rawVertex['f_rest_2'];
+                newSplat[UncompressedSplatArray.OFFSET.FRC7] = rawVertex['f_rest_5'];
+                newSplat[UncompressedSplatArray.OFFSET.FRC8] = rawVertex['f_rest_8'];
+            } else {
+                newSplat[UncompressedSplatArray.OFFSET.FRC0] = 0;
+                newSplat[UncompressedSplatArray.OFFSET.FRC1] = 0;
+                newSplat[UncompressedSplatArray.OFFSET.FRC2] = 0;
+            }
+
+            
             if (rawVertex['opacity'] !== undefined) {
                 newSplat[UncompressedSplatArray.OFFSET.OPACITY] = (1 / (1 + Math.exp(-rawVertex['opacity']))) * 255;
             }
@@ -237,20 +256,20 @@ export class PlyParser {
 
             // TODO: Eventually properly support multiple degree spherical harmonics
             // figure out the SH degree from the number of coefficients
-            /* let nRestCoeffs = 0;
+            let nRestCoeffs = 0;
             for (const propertyName in header.propertyTypes) {
                 if (propertyName.startsWith('f_rest_')) {
                     nRestCoeffs += 1;
                 }
             }
-            const nCoeffsPerColor = nRestCoeffs / 3;*/
+            const nCoeffsPerColor = nRestCoeffs / 3;
 
-            // const sphericalHarmonicsDegree = Math.sqrt(nCoeffsPerColor + 1) - 1;
+            const sphericalHarmonicsDegree = Math.sqrt(nCoeffsPerColor + 1) - 1;
             // const sphericalHarmonicsDegree = 0;
-            // console.log('Detected degree', sphericalHarmonicsDegree, 'with ', nCoeffsPerColor, 'coefficients per color');
-
+            console.log('Detected degree', sphericalHarmonicsDegree, 'with ', nCoeffsPerColor, 'coefficients per color');
+            
             // figure out the order in which spherical harmonics should be read
-            /* const shFeatureOrder = [];
+            const shFeatureOrder = [];
             for (let rgb = 0; rgb < 3; ++rgb) {
                 shFeatureOrder.push(`f_dc_${rgb}`);
             }
@@ -258,7 +277,7 @@ export class PlyParser {
                 for (let rgb = 0; rgb < 3; ++rgb) {
                     shFeatureOrder.push(`f_rest_${rgb * nCoeffsPerColor + i}`);
                 }
-            }*/
+            }
 
             const splatArray = new UncompressedSplatArray();
 
